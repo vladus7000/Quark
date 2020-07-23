@@ -1,0 +1,49 @@
+cmake_minimum_required(VERSION 3.6.2)
+
+project(AntiQuark)
+
+set(CMAKE_CXX_STANDARD 11)
+
+file(GLOB_RECURSE ENGINE_INCLUDE_CORE "${ENGINE_ROOT}/Core/*.hpp" "${ENGINE_ROOT}/Core/*.h")
+file(GLOB_RECURSE ENGINE_SOURCE_CORE "${ENGINE_ROOT}/Core/*.cpp" "${ENGINE_ROOT}/Core/*.c")
+source_group("Core" FILES ${ENGINE_INCLUDE_CORE} ${ENGINE_SOURCE_CORE} )
+set(CORE_FILES ${ENGINE_INCLUDE_CORE} ${ENGINE_SOURCE_CORE})
+
+file(GLOB_RECURSE ENGINE_INCLUDE_INPUT "${ENGINE_ROOT}/Input/*.hpp" "${ENGINE_ROOT}/Input/*.h")
+file(GLOB_RECURSE ENGINE_SOURCE_INPUT "${ENGINE_ROOT}/Input/*.cpp" "${ENGINE_ROOT}/Input/*.c")
+source_group("Input" FILES ${ENGINE_INCLUDE_INPUT} ${ENGINE_SOURCE_INPUT} )
+set(INPUT_FILES ${ENGINE_INCLUDE_INPUT} ${ENGINE_SOURCE_INPUT})
+
+file(GLOB_RECURSE ENGINE_INCLUDE_PROFILING "${ENGINE_ROOT}/Profiling/*.hpp" "${ENGINE_ROOT}/Profiling/*.h")
+file(GLOB_RECURSE ENGINE_SOURCE_PROFILING "${ENGINE_ROOT}/Profiling/*.cpp" "${ENGINE_ROOT}/Profiling/*.c")
+source_group("Profiling" FILES ${ENGINE_INCLUDE_PROFILING} ${ENGINE_SOURCE_PROFILING} )
+set(PROFILING_FILES ${ENGINE_INCLUDE_PROFILING} ${ENGINE_SOURCE_PROFILING})
+
+file(GLOB_RECURSE ENGINE_INCLUDE_RENDER "${ENGINE_ROOT}/Renderer/*.hpp" "${ENGINE_ROOT}/Renderer/*.h")
+file(GLOB_RECURSE ENGINE_SOURCE_RENDER "${ENGINE_ROOT}/Renderer/*.cpp" "${ENGINE_ROOT}/Renderer/*.c")
+source_group("Renderer" FILES ${ENGINE_INCLUDE_RENDER} ${ENGINE_SOURCE_RENDER} )
+set(RENDERER_FILES ${ENGINE_INCLUDE_RENDER} ${ENGINE_SOURCE_RENDER})
+
+file(GLOB_RECURSE ENGINE_INCLUDE_SCRIPTING "${ENGINE_ROOT}/Scripting/*.hpp" "${ENGINE_ROOT}/Scripting/*.h")
+file(GLOB_RECURSE ENGINE_SOURCE_SCRIPTING "${ENGINE_ROOT}/Scripting/*.cpp" "${ENGINE_ROOT}/Scripting/*.c")
+source_group("Scripting" FILES ${ENGINE_INCLUDE_SCRIPTING} ${ENGINE_SOURCE_SCRIPTING} )
+set(SCRIPTING_FILES ${ENGINE_INCLUDE_SCRIPTING} ${ENGINE_SOURCE_SCRIPTING})
+
+file(GLOB_RECURSE ENGINE_INCLUDE_SOUND "${ENGINE_ROOT}/Sound/*.hpp" "${ENGINE_ROOT}/Sound/*.h")
+file(GLOB_RECURSE ENGINE_SOURCE_SOUND "${ENGINE_ROOT}/Sound/*.cpp" "${ENGINE_ROOT}/Sound/*.c")
+source_group("Sound" FILES ${ENGINE_INCLUDE_SOUND} ${ENGINE_SOURCE_SOUND} )
+set(SOUND_FILES ${ENGINE_INCLUDE_SOUND} ${ENGINE_SOURCE_SOUND})
+
+file(GLOB_RECURSE ENGINE_SOURCE *.cpp)
+
+add_library(AntiQuark ${CORE_FILES} ${INPUT_FILES} ${PROFILING_FILES} ${RENDERER_FILES} ${SCRIPTING_FILES} ${SOUND_FILES})
+
+#add_subdirectory(Libraries/cereal/)
+include_directories(${ENGINE_ROOT}/Libraries/cereal/include/)
+include_directories(${ENGINE_ROOT}/Libraries/entt/single_include/)
+include_directories(${ENGINE_ROOT}/Libraries/glfw/include/)
+add_subdirectory(Libraries/glfw/)
+
+include_directories(${ENGINE_ROOT})
+
+target_link_libraries(AntiQuark glfw)
