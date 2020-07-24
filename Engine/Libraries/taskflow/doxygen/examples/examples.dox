@@ -1,0 +1,16 @@
+namespace tf {
+
+/** @page Examples Learning from Examples
+
+  This page contains several examples to learn %Taskflow in real use case.
+  
+  @subpage wavefront @n
+  @subpage matrix_multiplication @n
+  @subpage fibonacci @n
+  @subpage kmeans @n
+  @subpage flipcoins @n
+  @subpage graphtraversal @n
+
+*/
+
+}

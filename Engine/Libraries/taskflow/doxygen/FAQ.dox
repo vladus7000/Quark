@@ -1,0 +1,142 @@
+namespace tf {
+
+/** @page FAQ Frequently Asked Questions
+
+This page summarizes a list of frequently asked questions about %Taskflow.
+If you cannot find a solution here, please post an issue at
+<a href="https://github.com/taskflow/taskflow/issues">here</a>.
+
+@section GeneralQuestions General Questions
+
+@subsection GeneralQuestion1 Q1: What's the goal of Taskflow?
+
+%Taskflow aims to help C++ developers quickly implement efficient 
+parallel decomposition strategies using task-based approaches.
+
+@subsection GeneralQuestion2 Q2: How do I use Taskflow in my projects?
+
+%Taskflow is a header-only library with zero dependencies. 
+The only thing you need is a C++14 compiler.
+To use %Taskflow, simply drop the folder @c taskflow/
+to your project and include taskflow.hpp.
+
+@subsection GeneralQuestion3 Q3: What is the difference between static tasking and dynamic tasking?
+
+Static tasking refers to those tasks created before execution,
+while dynamic tasking refers to those tasks created during the execution of static tasks
+or dynamic tasks (nested).
+Dynamic tasks created by the same task node are grouped together to a subflow.
+
+@subsection GeneralQuestion4 Q4: How many tasks can Taskflow handle?
+
+Benchmarks showed %Taskflow can efficiently handle millions or billions of tasks 
+(both large and small tasks) on a machine with up to 64 CPUs.
+
+@subsection GeneralQuestion5 Q5: What is the weird hex value, like 0x7fc39d402ab0, in the dumped graph?
+
+The hex value represents the memory address of the task.
+Each task has a method tf::Task::name(const std::string&) for user to assign a human readable string
+to ease the debugging process. If a task is not assigned a name or is an internal node,
+its address value in the memory is used instead.
+
+@subsection GeneralQuestion6 Q6: Does Taskflow have backward compatibility with C++03/98/11?
+
+Unfortunately, %Taskflow is heavily relying on modern C++14's features/idoms/STL 
+and it is very difficult to provide a version that compiles under older C++ versions.
+
+@subsection GeneralQuestion7 Q7: How does Taskflow schedule tasks?
+
+%Taskflow implemented a very efficient 
+<a href="https://en.wikipedia.org/wiki/Work_stealing">work-stealing scheduler</a> 
+to execute task dependency graphs.
+The source code is available at @c taskflow/core/executor.hpp.
+
+@subsection GeneralQuestion8 Q8: What is the overhead of taskflow?
+
+Creating a taskflow has certain overhead. For example, creating a task and a dependency 
+takes about 61 and 14 nanoseconds in our system (Intel 4-core CPU at 2.00GHz).
+The time is amortized over 1M operations, since we have implemented an object pool 
+to recycle tasks for minimal overhead.
+
+@subsection GeneralQuestion9 Q9: How does it compare to existing task programming systems?
+
+There is a large amount of work on programming systems (e.g., StarPU, Intel TBB, OpenMP, PaRSEC, Kokkos, HPX) in the interest of simplifying the 
+programming complexity of parallel and heterogeneous computing. 
+Each of these systems has its own pros and cons and deserves a reason to exist.
+However, they do have some problems, particularly from the standpoint of ease of use, 
+static control flow, and scheduling efficiency.
+%Taskflow addresses these limitations through a simple, expressive, and transparent
+graph programming model.
+
+@subsection GeneralQuestion10 Q10: Do you try to simplify the GPU kernel programming?
+
+No, we do not develop new programming models to simplify the kernel programming.
+The rationale is simple: Writing efficient kernels requires domain-specific knowledge 
+and developers often require direct access to the native GPU programming interface.
+High-level kernel programming models or abstractions all come with restricted applicability.
+Despite non-trivial kernel programming, we believe what makes heterogeneous computing difficult
+are surrounding tasks.
+A mistake made by task scheduling can outweigh all speed-up benefits from a highly optimized kernel.
+Therefore, %Taskflow focuses on heterogeneous tasking 
+that affects the overall system performance to a large extent.
+
+@subsection GeneralQuestion11 Q11: Do you have any real use cases?
+
+We have applied %Taskflow to solve many realistic workloads and demonstrated promising
+performance scalability and programming productivity. Please refer to @ref usecases
+and @ref References.
+
+----
+
+
+@section ProgrammingQuestions Programming Questions
+
+@subsection ProgrammingQuestions1 Q1: What is the difference between Taskflow threads and workers?
+
+The master thread owns the thread pool and can spawn workers to run tasks 
+or shutdown the pool. 
+Giving taskflow @c N threads means using @c N threads to do the works, 
+and there is a total of @c N+1 threads (including the master thread) in the program.
+Please refer to @ref C2_CreateAnExecutor for more details.
+
+@subsection ProgrammingQuestions2 Q2: What is the Lifetime of a Task and a Graph?
+
+The lifetime of a task sticks with its parent graph. 
+A task is not destroyed until its parent graph is destroyed.
+Please refer to @ref C1_LifetimeOfATask for more details.
+
+@subsection ProgrammingQuestions3 Q3: Is taskflow thread-safe?
+
+No, the taskflow object is not thread-safe. Multiple threads cannot create tasks from the same taskflow at the same time.
+
+@subsection ProgrammingQuestions4 Q4: Is executor thread-safe?
+
+Yes, the executor object is thread-safe. 
+You can have multiple threads run their taskflows on one executor.
+
+@subsection ProgrammingQuestions5 Q5: My program hangs and never returns after dispatching a taskflow graph. What's wrong?
+
+When the program hangs forever it is very likely your taskflow graph has a cycle or 
+not properly conditioned (see @ref chapter4).
+Try the tf::Taskflow::dump method to debug the graph before dispatching your taskflow graph.
+
+
+@subsection ProgrammingQuestions6 Q6: In the following example where B spawns a joined subflow of two tasks B1 and B2, do they run concurrently with task A?
+
+@image html images/dynamic_graph.png width=60%
+
+No. The subflow is spawned during the execution of B, and at this point A must finish
+because A precedes B. This gives rise to the fact B1 and B2 must run after A. 
+This graph may looks strange because B seems to run twice!
+However, B will run only once to create its subflow.
+Whether this subflow joins or detaches from B only affects the future object returned from B.
+
+
+*/
+
+}
+
+
+
+
+

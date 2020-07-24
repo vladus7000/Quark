@@ -42,7 +42,9 @@ add_library(AntiQuark ${CORE_FILES} ${INPUT_FILES} ${PROFILING_FILES} ${RENDERER
 include_directories(${ENGINE_ROOT}/Libraries/cereal/include/)
 include_directories(${ENGINE_ROOT}/Libraries/entt/single_include/)
 include_directories(${ENGINE_ROOT}/Libraries/glfw/include/)
+include_directories(${ENGINE_ROOT}/Libraries/taskflow/)
 add_subdirectory(Libraries/glfw/)
+#add_subdirectory(Libraries/taskflow/)
 
 include_directories(${ENGINE_ROOT})
 

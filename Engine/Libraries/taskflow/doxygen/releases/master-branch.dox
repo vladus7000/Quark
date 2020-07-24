@@ -1,0 +1,41 @@
+namespace tf {
+
+/** @page master-branch Master Branch (GitHub)
+
+%Taskflow master branch is the newest developing line to new features and improvements 
+we continue to support.
+It is also where this documentation is generated.
+Many things are considered @em experimental and may change or break from time to time.
+While it may be difficult to be keep all things consistent when introducing new features, 
+we continue to try our best to ensure backward compatibility.
+
+@section master-branch_download Download
+
+To download the newest version of %Taskflow, please clone from <a href="https://github.com/taskflow/taskflow">%Taskflow's GitHub</a>.
+
+@section master-branch_working_items Working Items
+
+@li adding tf::Executor::async to support std::async styled tasking
+@li enhancing the taskflow profiler (<a href="https://github.com/taskflow/tfprof">TFProf</a>)
+
+@section master-branch_new_features New Features
+
+@li added explicit join behavior of tf::Subflow (see @ref JoinASubflow and @ref fibonacci)
+@li added version macro (@c TF_VERSION, @c TF_MAJOR_VERSION, @c TF_MINOR_VERSION, @c TF_PATCH_VERSION) to retrieve version info programmatically (tf::version)
+
+@section master-branch_bug_fixes Bug Fixes 
+
+@li fixed the bug of iteratively detaching a subflow from a run loop or a condition loop (see @ref DetachASubflow)
+@li fixed the bug of conflict macro with boost (<a href="https://github.com/taskflow/taskflow/issues/184">#184</a>)
+
+@section master-branch_deprecated_items Deprecated Items 
+
+@lit removed two methods, tf::detached and tf::joined, due to the new join/detach behavior
+
+@section master-branch_miscellaneous_items Miscellaneous Items
+
+@li improved the section @ref C2_Observer
+
+*/
+
+}
