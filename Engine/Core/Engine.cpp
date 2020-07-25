@@ -1,8 +1,12 @@
 #include <iostream>
+#include <fstream>
 
-#include "EngineModule.hpp"
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <taskflow/taskflow.hpp>
+#include <nlohmann/json.hpp>
+#include "Gameplay/GameplayModule.hpp"
+#include "Renderer/RenderModule.hpp"
 
 // tf::Task ret = flow.emplace([this](tf::Subflow& subflow) {
 //     /*tf::Task B1 = */subflow.emplace([this]() { std::cout << m_name << std::endl; }).name("B1");
@@ -12,62 +16,59 @@
 //     //B2.precede(B3);
 // }).name(m_name);
 
-class GameLogic : public Module
+int main(int argc, char** argv)
 {
-public:
-    GameLogic()
-        : Module("GameLogic")
-    {}
-
-    virtual bool needsToRun() const override { return true; }
-    virtual tf::Task scedule(tf::Taskflow& flow) override
-    {
-        tf::Task ret = flow.emplace([]() {
-            std::cout << "GameLogic\n";
-        });
-        return ret;
-    }
-};
-
-class RenderLogic : public Module
-{
-public:
-    RenderLogic()
-        : Module("RenderLogic")
-    {}
-
-    virtual bool needsToRun() const override { return true; }
-    virtual tf::Task scedule(tf::Taskflow& flow) override
-    {
-        tf::Task ret = flow.emplace([]() {
-            std::cout << "RenderLogic\n";
-        });
-        return ret;
-    }
-};
-
-int EngineMain(int argc, char** argv)
-{
-    GameLogic gameLogicTask;
-    RenderLogic renderLogicTask;
-
-    tf::Executor executor;
-    tf::Taskflow jobGraph("EngineJobGraph");
-    
     if (!glfwInit())
     {
         return -1;
     }
+    int w = 640;
+    int h = 480;
+    std::string windowName("Q");
 
-    GLFWwindow* window = glfwCreateWindow(640, 480, "Q", NULL, NULL);
+    std::ifstream i("settings.json");
+    if (i.is_open())
+    {
+        nlohmann::json j;
+        i >> j;
+
+        if (!j.empty())
+        {
+            if (j.contains("w"))
+            {
+                w = j["w"];
+            }
+            if (j.contains("h"))
+            {
+                h = j["h"];
+            }
+            if (j.contains("title"))
+            {
+                windowName = j["title"];
+            }
+        }
+    }
+
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    GLFWwindow* window = glfwCreateWindow(w, h, windowName.c_str(), NULL, NULL);
+
+    GameplayModule gameplay;
+    RenderModule render;
+
+    render.init();
+    gameplay.init();
+
+    tf::Executor executor;
+    tf::Taskflow jobGraph("EngineJobGraph");
+
     while (!glfwWindowShouldClose(window))
     {
         jobGraph.clear();
 
         glfwPollEvents();
 
-        tf::Task gameLogicJob = gameLogicTask.scedule(jobGraph);
-        tf::Task renderLogicJob = renderLogicTask.scedule(jobGraph);
+        tf::Task gameLogicJob = gameplay.scedule(jobGraph);
+        tf::Task renderLogicJob = render.scedule(jobGraph);
 
         tf::Task beginFrameJob = jobGraph.emplace([]() { std::cout << "BeginFrame\n"; });
         tf::Task endFrameJob = jobGraph.emplace([]() { std::cout << "EndFrame\n"; });
@@ -82,6 +83,9 @@ int EngineMain(int argc, char** argv)
     glfwDestroyWindow(window);
 
     glfwTerminate();
+
+    gameplay.deinit();
+    render.deinit();
 
     return 0;
 }
