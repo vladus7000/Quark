@@ -18,6 +18,8 @@ public:
     virtual bool needsToRun() const = 0;
     virtual tf::Task scedule(tf::Taskflow& flow) = 0;
 
+    const std::string& getName() const { return m_name; }
+
 protected:
     std::string m_name;
 };

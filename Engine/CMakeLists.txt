@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.8.0)
 
 project(AntiQuark)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 find_package(Vulkan REQUIRED FATAL_ERROR)
 
@@ -43,7 +43,7 @@ file(GLOB_RECURSE ENGINE_SOURCE_GAMEPLAY "${ENGINE_ROOT}/Gameplay/*.cpp" "${ENGI
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${ENGINE_INCLUDE_GAMEPLAY} ${ENGINE_SOURCE_GAMEPLAY} )
 set(GAMEPLAY_FILES ${ENGINE_INCLUDE_GAMEPLAY} ${ENGINE_SOURCE_GAMEPLAY})
 
-add_executable(AntiQuark ${CORE_FILES} ${INPUT_FILES} ${PROFILING_FILES} ${RENDERER_FILES_ALL} ${SCRIPTING_FILES} ${SOUND_FILES} ${GAMEPLAY_FILES})
+add_library (AntiQuark ${CORE_FILES} ${INPUT_FILES} ${PROFILING_FILES} ${RENDERER_FILES_ALL} ${SCRIPTING_FILES} ${SOUND_FILES} ${GAMEPLAY_FILES})
 
 #add_subdirectory(Libraries/cereal/)
 include_directories(${ENGINE_ROOT}/Libraries/cereal/include/)
@@ -51,6 +51,8 @@ include_directories(${ENGINE_ROOT}/Libraries/entt/single_include/)
 include_directories(${ENGINE_ROOT}/Libraries/glfw/include/)
 include_directories(${ENGINE_ROOT}/Libraries/taskflow/)
 include_directories(${ENGINE_ROOT}/Libraries/json/single_include/)
+include_directories(${ENGINE_ROOT}/Libraries/glm/)
+include_directories(${DEMO_ROOT})
 include_directories(${Vulkan_INCLUDE_DIR})
 
 add_subdirectory(Libraries/glfw/)
@@ -58,7 +60,7 @@ add_subdirectory(Libraries/glfw/)
 
 include_directories(${ENGINE_ROOT})
 
-target_link_libraries(AntiQuark Universe glfw)
+target_link_libraries(AntiQuark glfw)
 target_link_libraries (AntiQuark ${Vulkan_LIBRARY})
 set_target_properties(
     AntiQuark PROPERTIES

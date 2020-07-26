@@ -1,3 +1,4 @@
+#include "Core/Engine.hpp"
 #include <iostream>
 #include <fstream>
 
@@ -7,6 +8,7 @@
 #include <nlohmann/json.hpp>
 #include "Gameplay/GameplayModule.hpp"
 #include "Renderer/RenderModule.hpp"
+#include "Core/Components.hpp"
 
 // tf::Task ret = flow.emplace([this](tf::Subflow& subflow) {
 //     /*tf::Task B1 = */subflow.emplace([this]() { std::cout << m_name << std::endl; }).name("B1");
@@ -15,6 +17,12 @@
 //     //B1.precede(B3);
 //     //B2.precede(B3);
 // }).name(m_name);
+
+Quark::Engine& Quark::GetEngine()
+{
+    static Quark::Engine engine;
+    return engine;
+}
 
 int main(int argc, char** argv)
 {
@@ -53,7 +61,13 @@ int main(int argc, char** argv)
     GLFWwindow* window = glfwCreateWindow(w, h, windowName.c_str(), NULL, NULL);
 
     GameplayModule gameplay;
-    RenderModule render;
+    RenderModule render(window);
+
+    auto gameplayComponent = Quark::GetEngine().m_modules.create();
+    Quark::GetEngine().m_modules.emplace<Quark::GameplayComponent>(gameplayComponent, &gameplay);
+
+    auto renderComponent = Quark::GetEngine().m_modules.create();
+    Quark::GetEngine().m_modules.emplace<Quark::RenderComponent>(renderComponent, &render);
 
     render.init();
     gameplay.init();

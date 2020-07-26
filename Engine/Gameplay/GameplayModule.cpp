@@ -1,4 +1,5 @@
 #include "GameplayModule.hpp"
+#include <DemoMain.hpp>
 
 GameplayModule::GameplayModule()
     : EngineModule("GameplayLogic")
@@ -21,6 +22,7 @@ tf::Task GameplayModule::scedule(tf::Taskflow& flow)
 {
     tf::Task ret = flow.emplace([]() {
         std::cout << "GameplayLogic\n";
+        DoSomething();
     });
 
     return ret;
