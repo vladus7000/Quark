@@ -9,6 +9,7 @@
 #include "Gameplay/GameplayModule.hpp"
 #include "Renderer/RenderModule.hpp"
 #include "Core/Components.hpp"
+#include "Input/Input.hpp"
 
 // tf::Task ret = flow.emplace([this](tf::Subflow& subflow) {
 //     /*tf::Task B1 = */subflow.emplace([this]() { std::cout << m_name << std::endl; }).name("B1");
@@ -22,6 +23,35 @@ Quark::Engine& Quark::GetEngine()
 {
     static Quark::Engine engine;
     return engine;
+}
+
+void InputReciever(const Quark::Input::KeyboardEvent& e)
+{
+    if ((*e.state)[Quark::Input::KeyboardKeys::A] == Quark::Input::FirstDown)
+    {
+        std::cout << "A\n";
+    }
+    if ((*e.state)[Quark::Input::KeyboardKeys::D] == Quark::Input::FirstDown)
+    {
+        std::cout << "D\n";
+    }
+}
+
+void MouseReciever(const Quark::Input::MouseKeyEvent& e)
+{
+    if ((*e.state)[Quark::Input::MouseKeys::LeftButton] == Quark::Input::Down)
+    {
+        std::cout << "LB\n";
+    }
+    if ((*e.state)[Quark::Input::MouseKeys::RightButton] == Quark::Input::Down)
+    {
+        std::cout << "RB\n";
+    }
+}
+
+void MouseMoveReciever(const Quark::Input::MouseMoveEvent& e)
+{
+    std::cout << "Move\n";
 }
 
 int main(int argc, char** argv)
@@ -62,15 +92,24 @@ int main(int argc, char** argv)
 
     GameplayModule gameplay;
     RenderModule render(window);
+    Quark::Input input(window);
+    input.m_inputDispatcher.sink<Quark::Input::KeyboardEvent>().connect<&InputReciever>();
+    input.m_inputDispatcher.sink<Quark::Input::MouseKeyEvent>().connect<&MouseReciever>();
+    input.m_inputDispatcher.sink<Quark::Input::MouseMoveEvent>().connect<&MouseMoveReciever>();
 
     auto gameplayComponent = Quark::GetEngine().m_modules.create();
     Quark::GetEngine().m_modules.emplace<Quark::GameplayComponent>(gameplayComponent, &gameplay);
 
     auto renderComponent = Quark::GetEngine().m_modules.create();
     Quark::GetEngine().m_modules.emplace<Quark::RenderComponent>(renderComponent, &render);
+    {
+        auto component = Quark::GetEngine().m_modules.create();
+        Quark::GetEngine().m_modules.emplace<Quark::InputComponent>(component, &render);
 
+    }
     render.init();
     gameplay.init();
+    input.init();
 
     tf::Executor executor;
     tf::Taskflow jobGraph("EngineJobGraph");
@@ -83,23 +122,26 @@ int main(int argc, char** argv)
 
         tf::Task gameLogicJob = gameplay.scedule(jobGraph);
         tf::Task renderLogicJob = render.scedule(jobGraph);
+        tf::Task inputJob = input.scedule(jobGraph);
 
-        tf::Task beginFrameJob = jobGraph.emplace([]() { std::cout << "BeginFrame\n"; });
-        tf::Task endFrameJob = jobGraph.emplace([]() { std::cout << "EndFrame\n"; });
+        tf::Task beginFrameJob = jobGraph.emplace([]() { /*std::cout << "BeginFrame\n";*/ });
+        tf::Task endFrameJob = jobGraph.emplace([]() {/* std::cout << "EndFrame\n";*/ });
 
-        beginFrameJob.precede(gameLogicJob);
+        beginFrameJob.precede(inputJob);
+        inputJob.precede(gameLogicJob);
         gameLogicJob.precede(renderLogicJob);
         renderLogicJob.precede(endFrameJob);
 
         executor.run(jobGraph).wait();
     }
 
+    input.deinit();
+    gameplay.deinit();
+    render.deinit();
+
     glfwDestroyWindow(window);
 
     glfwTerminate();
-
-    gameplay.deinit();
-    render.deinit();
 
     return 0;
 }

@@ -21,7 +21,7 @@ bool GameplayModule::needsToRun() const
 tf::Task GameplayModule::scedule(tf::Taskflow& flow)
 {
     tf::Task ret = flow.emplace([]() {
-        std::cout << "GameplayLogic\n";
+        //std::cout << "GameplayLogic\n";
         DoSomething();
     });
 

@@ -22,4 +22,8 @@ namespace Quark
     struct RenderComponent : ModuleComponent
     {
     };
+
+    struct InputComponent : ModuleComponent
+    {
+    };
 }
